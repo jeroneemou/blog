@@ -1,6 +1,15 @@
 # Blog
 Just puke my brainz out!
 
+https://blog.davidrosa.cz
+
+## TODO
+- hosting
+- build pipeline and deployment
+- badges
+- npm audit
+- design
+- 
 
 ## Local development
 
