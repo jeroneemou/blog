@@ -2,7 +2,6 @@ import resolve from 'rollup-plugin-node-resolve';
 import replace from 'rollup-plugin-replace';
 import commonjs from 'rollup-plugin-commonjs';
 import svelte from 'rollup-plugin-svelte';
-import sveltePreprocess from 'svelte-preprocess';
 import babel from 'rollup-plugin-babel';
 import { terser } from 'rollup-plugin-terser';
 import config from 'sapper/config/rollup.js';
@@ -13,10 +12,7 @@ const dev = mode === 'development';
 const legacy = !!process.env.SAPPER_LEGACY_BUILD;
 
 const onwarn = (warning, onwarn) => (warning.code === 'CIRCULAR_DEPENDENCY' && /[/\\]@sapper[/\\]/.test(warning.message)) || onwarn(warning);
-
-const preprocess = sveltePreprocess({
-	scss: true
-});
+const dedupe = importee => importee === 'svelte' || importee.startsWith('svelte/');
 
 export default {
 	client: {
@@ -30,11 +26,11 @@ export default {
 			svelte({
 				dev,
 				hydratable: true,
-				emitCss: true,
-				preprocess
+				emitCss: true
 			}),
 			resolve({
-				browser: true
+				browser: true,
+				dedupe
 			}),
 			commonjs(),
 
@@ -73,10 +69,11 @@ export default {
 			}),
 			svelte({
 				generate: 'ssr',
-				dev,
-				preprocess
+				dev
 			}),
-			resolve(),
+			resolve({
+				dedupe
+			}),
 			commonjs()
 		],
 		external: Object.keys(pkg.dependencies).concat(
